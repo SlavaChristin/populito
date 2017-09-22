@@ -1,0 +1,16 @@
+Antrl:
+	https://tomassetti.me/antlr-mega-tutorial/
+	https://stackoverflow.com/questions/1931307/antlr-is-there-a-simple-example
+	https://stackoverflow.com/questions/1233448/no-multiline-lambda-in-python-why-not
+    https://github.com/shmatov/antlr4-calculator/blob/master/Calculator.g4
+    https://stackoverflow.com/questions/29971097/how-to-create-ast-with-antlr4
+
+CDC:
+	https://www.red-gate.com/simple-talk/sql/learn-sql-server/introduction-to-change-data-capture-cdc-in-sql-server-2008/
+	https://solutioncenter.apexsql.com/analyzing-and-reading-change-data-capture-cdc-records/
+	https://docs.microsoft.com/en-us/sql/relational-databases/track-changes/work-with-change-data-sql-server
+	https://stackoverflow.com/questions/793643/auditing-sql-server-data-changes
+
+Tools:
+	http://tunnelvisionlabs.com/products/demo/antlrworks
+    https://stackoverflow.com/questions/36845266/antlr4-lexer-debugging-tracing
