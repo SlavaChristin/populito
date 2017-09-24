@@ -5,12 +5,12 @@ import java.io.LineNumberReader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
 import com.branegy.populito.formatter.FormattableFunction;
 import com.branegy.populito.formatter.Formatter;
+import com.branegy.populito.parser.InputParser;
 
 
 public class Populito {
@@ -247,15 +247,6 @@ public class Populito {
         throw new Exception("Field "+name+" not found");
     }
 
-	public static void cleanupTable(Connection conn, String tableName) throws Exception {
-		cleanupTable(conn, tableName, null);
-	}
-	
-	public static void cleanupTable(Connection conn, String tableName, String filter) throws Exception {
-		String query = "delete from [" + tableName + "]" + (filter == null ? "" : " where "+filter);
-		int rows = runQuery(conn, query);
-		System.out.println("Removed "+rows +" row(s) from " + tableName);
-	}
 	
 	public void commit() {
 		if (state.getParentState()!=null) {
@@ -275,11 +266,5 @@ public class Populito {
 		listeners.add(recordListener);
 	}
 
-	public static int runQuery(Connection conn, String query) throws Exception {
-		Statement stmt = conn.createStatement();
-		int rows = stmt.executeUpdate(query);
-		stmt.close();
-		return rows;
-	}
 
 }

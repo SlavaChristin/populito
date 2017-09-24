@@ -5,6 +5,32 @@ grammar Populito;
    package com.branegy.populito.parser;
 }
 
+
+math
+  : plusOrMinus EOF
+;
+
+plusOrMinus
+  : v_left=plusOrMinus v_operation=PLUS  v_right=multOrDiv
+  | v_left=plusOrMinus v_operation=MINUS v_right=multOrDiv
+  | v_right=multOrDiv
+;
+ 
+multOrDiv
+  : v_left=multOrDiv v_operation=MULT v_right=pow
+  | v_left=multOrDiv v_operation=DIV  v_right=pow
+  | v_right=pow
+;
+
+pow
+  : unaryMinus (POWER pow)?
+;
+
+unaryMinus
+   : v_operation=MINUS unaryMinus
+   | expression
+;
+
 expression
   : v_list=list
   | v_field=field
@@ -77,6 +103,12 @@ FALSE      : 'false';
 LPAREN     : '(' ;
 RPAREN     : ')' ;
 NULL       : 'null';
+PLUS	   : '+';
+MINUS      : '-';
+MULT	   : '*';
+DIV 	   : '/';
+POWER	   : '^';
+
 
 ID         : ('a'..'z' | 'A'..'Z') ('0'..'9'|'a'..'z'|'A'..'Z')*;
 WS         :   (' '|'\t')+ {skip();} ;

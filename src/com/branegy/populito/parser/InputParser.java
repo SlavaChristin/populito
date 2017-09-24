@@ -1,4 +1,4 @@
-package com.branegy.populito;
+package com.branegy.populito.parser;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -14,21 +14,16 @@ import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import com.branegy.populito.Function;
+import com.branegy.populito.Populito;
 import com.branegy.populito.functions.*;
-import com.branegy.populito.functions.exp.AndExpression;
 import com.branegy.populito.functions.exp.BooleanExpression;
 import com.branegy.populito.functions.exp.ConditionalExpression;
-import com.branegy.populito.parser.*;
-import com.branegy.populito.parser.PopulitoParser.Conditional_andContext;
-import com.branegy.populito.parser.PopulitoParser.Conditional_orContext;
-import com.branegy.populito.parser.PopulitoParser.ConstantContext;
-import com.branegy.populito.parser.PopulitoParser.ExpressionContext;
-import com.branegy.populito.parser.PopulitoParser.FieldContext;
-import com.branegy.populito.parser.PopulitoParser.FunctionContext;
-import com.branegy.populito.parser.PopulitoParser.If_then_elseContext;
-import com.branegy.populito.parser.PopulitoParser.ListContext;
-import com.branegy.populito.parser.PopulitoParser.ParametersContext;
-import com.branegy.populito.parser.PopulitoParser.TermContext;
+import com.branegy.populito.functions.exp.LogicalExpression;
+import com.branegy.populito.functions.exp.MathExpression;
+import com.branegy.populito.functions.exp.LogicalExpression.LogicalOperator;
+import com.branegy.populito.functions.exp.MathExpression.MathOperator;
+import com.branegy.populito.parser.PopulitoParser.*;
 
 
 public class InputParser {
@@ -62,8 +57,8 @@ public class InputParser {
 		parser.removeErrorListeners();
 		parser.addErrorListener(ThrowingErrorListener.INSTANCE);
 		   
-		ExpressionContext value = parser.expression();
-		return visitExpression(value);
+		PlusOrMinusContext ctx = parser.math().plusOrMinus();
+		return visitPlusOrMinus(ctx);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -75,32 +70,96 @@ public class InputParser {
 		new InputParser().parseExpression(input);
 	}
 	
+	
 	public static final void log(String log) {
 		if (Populito.DEBUG) {
 			System.out.println(log);
 		}
 	}
 	
+	private Function visitPlusOrMinus(PlusOrMinusContext ctx) throws Exception {
+		Function result = null;
+		if (ctx.v_left==null) {
+			result = visitMultOrDiv(ctx.v_right);
+		} else {
+			log("PlusOrMinus: "+ctx.getText());
+			String op = ctx.v_operation.getText();
+			Function left = visitPlusOrMinus(ctx.v_left);
+			Function right = visitMultOrDiv(ctx.v_right);
+			if (op.equals("+")) {
+				result = new MathExpression(left, MathOperator.PLUS , right);
+			} else if (op.equals("-")) {
+				result = new MathExpression(left, MathOperator.MINUS, right);
+			} else {
+				throw new RuntimeException("Unexpected operator " + op);			
+			}
+		}
+		return result;		
+	}
+	
+	private Function visitMultOrDiv(MultOrDivContext ctx) throws Exception {
+		Function result = null;
+		if (ctx.v_left==null) {			
+			result = visitPow(ctx.v_right);
+		} else {
+			log("MultOrDiv: "+ctx.getText());
+
+			String op = ctx.v_operation.getText();
+			Function left = visitMultOrDiv(ctx.v_left);
+			Function right = visitPow(ctx.v_right);
+			if (op.equals("*")) {
+				result = new MathExpression(left, MathOperator.MULTIPLY , right);
+			} else if (op.equals("/")) {
+				result = new MathExpression(left, MathOperator.DIV, right);
+			} else {
+				throw new RuntimeException("Unexpected operator " + op);			
+			}
+		}	
+		return result;		
+	}
+
+	private Function visitPow(PowContext ctx) throws Exception {
+		Function result = null;
+		if (ctx.pow()==null) {
+			result = visitUnaryMinus(ctx.unaryMinus());
+		} else {
+			log("Pow: "+ctx.getText());
+			throw new RuntimeException("Power is not implemented");	
+		}
+		return result;
+	}
+
+	private Function visitUnaryMinus(UnaryMinusContext ctx) throws Exception {		
+		Function result = null;
+		if (ctx.v_operation==null) {
+			result = visitExpression(ctx.expression());
+		} else {
+			log("Unary Minus: "+ctx.getText());
+			throw new RuntimeException("'Unary minus' is not implemented");	
+		}		
+		return result;
+	}
+
 	private Function visitExpression(ExpressionContext ctx) throws Exception {
 		log("Expression: "+ctx.getText());
-		
-		 Function result = null;
-		 if (ctx.v_constant!=null) {
-			 result = visitConstant(ctx.v_constant);
-		 } else if (ctx.v_field!=null) {
-			 result = visitField(ctx.v_field);
-		 } else if (ctx.v_function!=null) {
-			 result = visitFunction(ctx.v_function);
-		 } else if (ctx.v_ifthenelse!=null){
-			 result = visitIfThenElse(ctx.v_ifthenelse);
-		 } else if (ctx.v_list!=null) {
-			 result = visitList(ctx.v_list);
-		 } else if (ctx.v_null!=null) {
-			 result = new Constant(null);
-		 } else {
-			 throw new RuntimeException("Expected an expression");
-		 }
-		 return result;
+
+		Function result = null;
+		if (ctx.v_constant!=null) {
+			result = visitConstant(ctx.v_constant);
+		} else if (ctx.v_field!=null) {
+			result = visitField(ctx.v_field);
+		} else if (ctx.v_function!=null) {
+			result = visitFunction(ctx.v_function);
+		} else if (ctx.v_ifthenelse!=null){
+			result = visitIfThenElse(ctx.v_ifthenelse);
+		} else if (ctx.v_list!=null) {
+			result = visitList(ctx.v_list);
+		} else if (ctx.v_null!=null) {
+			result = new Constant(null);
+		} else {
+			throw new RuntimeException("Expected an expression");
+		}
+		return result;
 	}
 
 	private Function visitIfThenElse(If_then_elseContext ctx) throws Exception {
@@ -114,41 +173,41 @@ public class InputParser {
 	}
 
 	private Function visitConditionOr(Conditional_orContext ctx) throws Exception {
-		log("Condition[OR]: "+ctx.getText());
 		List<Conditional_andContext> childs = ctx.conditional_and();
 		Function result = null;
 		if (childs.size()==1) {
 			result = visitConditionAnd(childs.get(0));
 		} else {
+			log("Condition[OR]: "+ctx.getText());
 			List<Function> list = new ArrayList<Function>(childs.size());
 			for (Conditional_andContext child : childs) {
 				list.add(visitConditionAnd(child));
 			}
-			result = new AndExpression(list);;
+			result = new LogicalExpression(list, LogicalOperator.OR);
 		}
 		return result;
 	}
 
 	private Function visitConditionAnd(Conditional_andContext ctx) throws Exception {
-		log("Condition[AND]: "+ctx.getText());
 		List<TermContext> childs = ctx.term();
 		Function result = null;
 		if (childs.size()==1) {
 			result = visitTerm(childs.get(0));
 		} else {
+			log("Condition[AND]: "+ctx.getText());
 			List<Function> list = new ArrayList<Function>(childs.size());
 			for (TermContext child : childs) {
 				list.add(visitTerm(child));
 			}
-			result = new AndExpression(list);
+			result = new LogicalExpression(list, LogicalOperator.AND);
 		}
 		return result;
 	}
 
 	private Function visitTerm(TermContext ctx) throws Exception {
-		log("Term: "+ctx.getText());
 		Function result;
 		if (ctx.v_left!=null) {
+			log("Term: "+ctx.getText());
 			Function left = visitExpression(ctx.v_left);
 			String operator = null;
 			Function right = null;
