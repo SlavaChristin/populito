@@ -4,6 +4,7 @@ import java.util.Random;
 
 public abstract class Function {
     protected SharedState state;
+
     protected Random rnd = new Random();
 
     public abstract Object nextValue();
@@ -37,25 +38,25 @@ public abstract class Function {
     }
     
     public Boolean toBoolean(Object object) {
-    	if (object==null) {
-    		throw new RuntimeException("Boolean cannot be null");
-    	}
-   		if (object instanceof Boolean) {
-			return (Boolean)object;
-		} else if (object.toString().equalsIgnoreCase("true")) {
-			return Boolean.TRUE;
-		} else if (object.toString().equalsIgnoreCase("false")) {
-			return Boolean.FALSE;
-		} else {
-	    	throw new RuntimeException("Unexpected boolean value "+object);
-		}
+        if (object==null) {
+            throw new RuntimeException("Boolean cannot be null");
+        }
+           if (object instanceof Boolean) {
+            return (Boolean)object;
+        } else if (object.toString().equalsIgnoreCase("true")) {
+            return Boolean.TRUE;
+        } else if (object.toString().equalsIgnoreCase("false")) {
+            return Boolean.FALSE;
+        } else {
+            throw new RuntimeException("Unexpected boolean value "+object);
+        }
     }
 
     public String toString(Object object) {
         return object == null ? null : object.toString();
     }
 
-	public void reset() {
-	}
+    public void reset() {
+    }
 
 }

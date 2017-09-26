@@ -5,6 +5,9 @@ import com.branegy.populito.Function;
 /**
  * Generates a sql server GUID
  */
+
+// TODO Implement seed
+
 public class Guid extends Function {
 
     @Override

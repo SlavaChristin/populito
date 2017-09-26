@@ -6,8 +6,9 @@ grammar Populito;
 }
 
 
-math
-  : plusOrMinus EOF
+mathExpression
+  : plusOrMinus
+  | expression
 ;
 
 plusOrMinus
@@ -55,14 +56,14 @@ term
 ; 
   
 if_then_else
-  : IF v_codition=conditional_expression THEN v_then=expression ELSE v_else=expression END;
+  : IF v_codition=conditional_expression THEN v_then=mathExpression ELSE v_else=mathExpression END;
 
 
 list
-  : OPEN_SB expression (COMMA expression )* CLOSE_SB;
+  : OPEN_SB mathExpression (COMMA mathExpression )* CLOSE_SB;
 
 parameters
-  : ID EQ expression (COMMA ID EQ expression)*;
+  : ID EQ mathExpression (COMMA ID EQ mathExpression)*;
 
     
 function

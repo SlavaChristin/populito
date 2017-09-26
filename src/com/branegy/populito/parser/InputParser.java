@@ -32,14 +32,14 @@ public class InputParser {
 	
 	 static class ThrowingErrorListener extends BaseErrorListener {
 
-		 	static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
+		static final ThrowingErrorListener INSTANCE = new ThrowingErrorListener();
 
-		   @Override
-		   public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e)
-		      throws ParseCancellationException {
-		         throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
-		      }
+		@Override
+		public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e)
+		    throws ParseCancellationException {
+		    throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
 		}
+	}
 	public Set<String> getDependencies() {
 		return dependencies;
 	}
@@ -49,16 +49,16 @@ public class InputParser {
 		PopulitoLexer lexer = new PopulitoLexer(CharStreams.fromString(expression));
 		lexer.removeErrorListeners();
 		lexer.addErrorListener(ThrowingErrorListener.INSTANCE);
-				
+
 
 		CommonTokenStream tokens = new CommonTokenStream( lexer );
 		PopulitoParser parser = new PopulitoParser( tokens );
 
 		parser.removeErrorListeners();
 		parser.addErrorListener(ThrowingErrorListener.INSTANCE);
-		   
-		PlusOrMinusContext ctx = parser.math().plusOrMinus();
-		return visitPlusOrMinus(ctx);
+
+		MathExpressionContext ctx = parser.mathExpression();
+		return visitMathExpression(ctx);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -75,6 +75,16 @@ public class InputParser {
 		if (Populito.DEBUG) {
 			System.out.println(log);
 		}
+	}
+	
+	private Function visitMathExpression(MathExpressionContext ctx) throws Exception {
+		Function result = null;
+		if (ctx.plusOrMinus()!=null) {
+			result = visitPlusOrMinus(ctx.plusOrMinus());
+		} else { 
+			result = visitExpression(ctx.expression());
+		}
+		return result;
 	}
 	
 	private Function visitPlusOrMinus(PlusOrMinusContext ctx) throws Exception {
@@ -124,12 +134,12 @@ public class InputParser {
 			result = visitUnaryMinus(ctx.unaryMinus());
 		} else {
 			log("Pow: "+ctx.getText());
-			throw new RuntimeException("Power is not implemented");	
+			throw new RuntimeException("Power is not implemented");
 		}
 		return result;
 	}
 
-	private Function visitUnaryMinus(UnaryMinusContext ctx) throws Exception {		
+	private Function visitUnaryMinus(UnaryMinusContext ctx) throws Exception {
 		Function result = null;
 		if (ctx.v_operation==null) {
 			result = visitExpression(ctx.expression());
@@ -166,8 +176,8 @@ public class InputParser {
 		log("IfThenElse: "+ctx.getText());
 		Function c = visitConditionOr( ctx.v_codition.conditional_or() );
 		
-		Function t = visitExpression(ctx.v_then);
-		Function f = visitExpression(ctx.v_else);
+		Function t = visitMathExpression(ctx.v_then);
+		Function f = visitMathExpression(ctx.v_else);
 		
 		return new ConditionalExpression(c, t, f);
 	}
@@ -231,7 +241,10 @@ public class InputParser {
 		String functionName = ctx.name.getText();
 		Class<?> cls;
 		try {
-			cls = Class.forName("com.branegy.populito.functions." + functionName);
+			cls = Populito.getFunction(functionName);
+			if (cls==null) {
+				cls = Class.forName("com.branegy.populito.functions." + functionName);
+			}
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Cannot create function " + functionName + " (class functions."
 					+ functionName + " not found)", e);
@@ -241,7 +254,7 @@ public class InputParser {
 		ParametersContext parameters = ctx.parameters();
 		if (parameters!=null) {
 			List<TerminalNode> paramNames = parameters.ID();
-			List<ExpressionContext> paramValues = parameters.expression();
+			List<MathExpressionContext> paramValues = parameters.mathExpression();
 
 			for (int i = 0; i < paramNames.size(); i++) {
 				String param = paramNames.get(i).getText();
@@ -249,7 +262,7 @@ public class InputParser {
 				if (param.length() > 1) {
 					setMethod += param.substring(1);
 				}
-				Function paramValue = visitExpression( paramValues.get(i) );
+				Function paramValue = visitMathExpression( paramValues.get(i) );
 				try {
 					Method method = cls.getMethod(setMethod, Function.class);
 					method.invoke(result, paramValue);
@@ -297,7 +310,7 @@ public class InputParser {
 				result = new Constant(new Long(ctx.getText()));
 			} catch (NumberFormatException e) {
 				result = new Constant(new Double(ctx.getText()));
-			}			
+			}
 		} else if (ctx.v_string!=null) {
 			String trim = ctx.getText().trim();
 			result = new Constant(trim.substring(1, trim.length() - 1));
@@ -311,10 +324,10 @@ public class InputParser {
 		log("List: "+ctx.getText());
 
 		ListFunction result = new ListFunction();
-		List<ExpressionContext> expression = ctx.expression();
-		List<Function> values = new ArrayList<Function>(expression.size());
-		for (ExpressionContext exp : expression ) {
-			values.add(visitExpression(exp));
+		List<MathExpressionContext> expressions = ctx.mathExpression();
+		List<Function> values = new ArrayList<Function>(expressions.size());
+		for (MathExpressionContext exp : expressions ) {
+			values.add(visitMathExpression(exp));
 		}
 		result.setValues(values);
 		return result;

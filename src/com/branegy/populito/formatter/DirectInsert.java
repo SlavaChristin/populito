@@ -9,6 +9,7 @@ import java.sql.PreparedStatement;
 import java.util.List;
 
 import com.branegy.populito.FieldInfo;
+import com.branegy.populito.Populito;
 import com.branegy.populito.PopulitoConfig;
 import com.branegy.populito.SharedState;
 // import com.microsoft.sqlserver.jdbc.SQLServerBulkCopy;
@@ -20,6 +21,7 @@ public class DirectInsert implements Formatter {
 	PreparedStatement ps;
 	int line = 0;
 	int column = 1;
+	String tableName;
 
     public DirectInsert(Connection connection) {
         super(); 
@@ -33,6 +35,7 @@ public class DirectInsert implements Formatter {
     	StringBuilder build = new StringBuilder("insert into ["+cfg.tableName+"] (");
    	 	List<FieldInfo> fields = state.fields;
         int fieldNumber = fields.size();
+        this.tableName = cfg.tableName;
         boolean first = true;
         for (int j = 0; j < fieldNumber; j++) {
             if (fields.get(j).produceOutput) {
@@ -65,6 +68,7 @@ public class DirectInsert implements Formatter {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+        line = 0;
     	 
     	/*
 		  SQLServerBulkCopyOptions options = new SQLServerBulkCopyOptions();
@@ -100,16 +104,13 @@ public class DirectInsert implements Formatter {
     public void startRow() {
     	line++;
     	column = 1;
+    	System.out.println(tableName+" line "+line);
     }
 
     @Override
     public void endRow() {
     	try {
     	       ps.addBatch();
-    	      // if (line % 100 == 0) {
-    	    	   // TODO Review execute large batch
-    	    //	   ps.executeBatch();
-    	      // }
     	} catch (Exception e) {
     		throw new RuntimeException(e);
     	}
@@ -120,6 +121,9 @@ public class DirectInsert implements Formatter {
     	//if (value==null) {
     	//	ps.setNull(parameterIndex, sqlType);
     	//}
+    	if (Populito.DEBUG) {
+        	System.out.println("    "+name+"                               :".substring(0,30-name.length())+": "+formattedValue);
+    	}
     	try {
 	    	ps.setObject(column, value);
 	    	column++;
