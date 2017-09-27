@@ -29,5 +29,6 @@ public class Distinct extends Function {
         	throw new IllegalArgumentException("Expecting a list"); 
         }        
     }
-
+    
+    // TODO - set state & seed values
 }

@@ -13,7 +13,7 @@ public class Concat extends Function {
     }
     
     public void setList(Function list ) {
-    	functions = ((ListFunction)list).getValues();
+        functions = ((ListFunction)list).getValues();
     }
 
     @Override
@@ -27,14 +27,14 @@ public class Concat extends Function {
     @Override
     public Object nextValue() {
         int length = functions.size();
-		Object[] values = new Object[length];
+        Object[] values = new Object[length];
         boolean _long = true;
         long result = 0;
         for (int i=0;i<length;i++) {
             Function function = functions.get(i);
-			values[i] =  function.nextValue();
+            values[i] =  function.nextValue();
             if (function instanceof FormattableFunction) {
-            	values[i] = ((FormattableFunction)function).formatValue(values[i]);
+                values[i] = ((FormattableFunction)function).formatValue(values[i]);
             }
             _long = _long && (values[i] instanceof Long);
             if (_long) {

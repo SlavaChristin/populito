@@ -2,6 +2,7 @@ package com.branegy.populito;
 
 import java.io.FileReader;
 import java.io.LineNumberReader;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,11 +16,12 @@ import com.branegy.populito.parser.InputParser;
 
 public class Populito {
 
-    public static final boolean DEBUG = false;
+    public static boolean DEBUG = true;
+    public static boolean INFO  = true;
     
-    protected List<FieldInfo> fields = new ArrayList<FieldInfo>();
+    // protected List<FieldInfo> fields = new ArrayList<FieldInfo>();
     protected PopulitoConfig cfg;
-    public SharedState state;
+    private  SharedState state;
     protected List<RecordListener> listeners = new ArrayList<RecordListener>();
     protected static Map<String, Class<? extends Function>> customFunctions = new HashMap<String, Class<? extends Function>>();
    
@@ -28,6 +30,14 @@ public class Populito {
         state.formatter = formatter;
     }
     
+    public List<FieldInfo> getFields() {
+    	return state.getFields();
+    }
+
+    public void setDefaultConnection(Connection connection) {
+        state.setDefaultConnection(connection);
+    }
+
     public static Class<? extends Function> getFunction(String name) {
     	return customFunctions.get(name);
     }
@@ -40,10 +50,8 @@ public class Populito {
         log("**** Loading configuration from "+config.configFile);
         this.cfg = config;
 
-        loadFields();
-        reorderFields();
+        final List<FieldInfo> fields = reorderFields(loadFields(config.configFile));
         
-        // final List<FieldInfo> fields = fields;
         state.setFields(fields);
         state.values = new Object[fields.size()];
         for (int i = 0; i < fields.size(); i++) {
@@ -53,7 +61,7 @@ public class Populito {
         
     }
 
-    protected void reorderFields() {
+    private static List<FieldInfo> reorderFields(List<FieldInfo> fields) {
         List<FieldInfo> orderedFields = new ArrayList<FieldInfo>();
         boolean found;
         do {
@@ -82,14 +90,14 @@ public class Populito {
             System.out.println("There is a cycle by dependencies");
             System.exit(1);
         }
-        fields = orderedFields;
+        return orderedFields;
     }
 
-    protected void loadFields() throws Exception {
-        this.fields.clear();
+    private static List<FieldInfo> loadFields(String configFile) throws Exception {
+    	List<FieldInfo> fields = new ArrayList<FieldInfo>();
         LineNumberReader reader = null;
         try {
-            reader = new LineNumberReader(new FileReader(cfg.configFile));
+            reader = new LineNumberReader(new FileReader(configFile));
             String input;
 
             InputParser inputParser = new InputParser();
@@ -153,8 +161,8 @@ public class Populito {
 
                 String value = input.substring(index + 1).trim();
                 log("-------------------------------------------------------------------------");
-                log(field);
-                log(value);
+                log(INFO, field);
+                log(INFO, value);
                 log("-------------------------------------------------------------------------");
 
                 FieldInfo fieldInfo = new FieldInfo();
@@ -172,9 +180,16 @@ public class Populito {
             if (reader!=null) 
                 reader.close();
         }
+        return fields;
     }
 
-    private void log(String string) {
+    public static void log(Boolean level, String string) {
+        if (level) {
+            System.out.println(string);
+        }
+    }
+
+    private static void log(String string) {
         if (DEBUG) {
             System.out.println(string);
         }
@@ -188,6 +203,7 @@ public class Populito {
         int j;
         // log("Starting generation" + (new Date()));
         int i = 0;
+        List<FieldInfo> fields = state.getFields();
         int fieldNumber = fields.size();
         try {
             for (i = 0; i < rows; i++) {
@@ -223,7 +239,6 @@ public class Populito {
                     rl.addRow();
                 }
                 if (i%200==0) {
-                    // System.out.println("Intermediate close");
                     commit();
                 }
             }
@@ -231,11 +246,9 @@ public class Populito {
             System.out.println("No more rows. Total rows generated: " + i);
         }
         if (autoClose) {  
-            // System.out.println("Final close");
             commit();
             close();
         }
-        // log("Generation completed" + (new Date()));
     }
 
     public void close() {
@@ -248,7 +261,8 @@ public class Populito {
     }
 
     public FieldInfo getField(String name) throws Exception {
-        for (FieldInfo field : fields) {
+        List<FieldInfo> fields = state.getFields();
+		for (FieldInfo field : fields) {
             if (field.name.equals(name)) {
                 return field;
             }
@@ -275,5 +289,13 @@ public class Populito {
         listeners.add(recordListener);
     }
 
+	public Object getFieldValue(String fieldName) {
+		return state.getFieldValue(fieldName);
+	}
+
+	public void setFieldValue(String fieldName, Map<String, Object> crewResourceInfo) {
+		int index = state.getFieldIndex(fieldName);
+		state.values[index] = crewResourceInfo;
+	}
 
 }
