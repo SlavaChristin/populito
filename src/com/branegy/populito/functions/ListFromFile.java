@@ -12,22 +12,22 @@ import com.branegy.populito.SharedState;
 
 public class ListFromFile extends ListFunction {
 
-	private Function sourceFile;
+    private Function sourceFile;
     
     int pointer = 0;
     
     //public void setSourceFile(String file) {
-    //	this.file = file;
+    //    this.file = file;
     //}
     
     public void setFile(Function file) {
-    	sourceFile = file;
+        sourceFile = file;
     }
     
     private List<Function> buildList() {
         try {
-        	String file = sourceFile.nextValue().toString();
-        	
+            String file = sourceFile.nextValue().toString();
+            
             // ClassLoader classLoader = this.getClass().getClassLoader();
             InputStream is = new FileInputStream(file);
             //if (is == null) {
@@ -51,10 +51,10 @@ public class ListFromFile extends ListFunction {
     }
     
     @Override
-	public void setState(SharedState state) {
-		super.setState(state);
-		sourceFile.setState(state);
-		setValues(buildList());
-	}
+    public void setState(SharedState state) {
+        super.setState(state);
+        sourceFile.setState(state);
+        setValues(buildList());
+    }
 
 }

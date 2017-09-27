@@ -17,11 +17,11 @@ import com.branegy.populito.SharedState;
 
 
 public class DirectInsert implements Formatter {
-	Connection conn;
-	PreparedStatement ps;
-	int line = 0;
-	int column = 1;
-	String tableName;
+    Connection conn;
+    PreparedStatement ps;
+    int line = 0;
+    int column = 1;
+    String tableName;
 
     public DirectInsert(Connection connection) {
         super(); 
@@ -31,20 +31,20 @@ public class DirectInsert implements Formatter {
     @Override
     public void initialize(PopulitoConfig cfg, SharedState state) throws FileNotFoundException,
             UnsupportedEncodingException {
-    	
-    	StringBuilder build = new StringBuilder("insert into ["+cfg.tableName+"] (");
-   	 	List<FieldInfo> fields = state.fields;
+        
+        StringBuilder build = new StringBuilder("insert into ["+cfg.tableName+"] (");
+        List<FieldInfo> fields = state.getFields();
         int fieldNumber = fields.size();
         this.tableName = cfg.tableName;
         boolean first = true;
         for (int j = 0; j < fieldNumber; j++) {
             if (fields.get(j).produceOutput) {
-            	if (first) {
-            		first = false;
-            	} else { 
-            		build.append(",");
-            	}
-            	
+                if (first) {
+                    first = false;
+                } else { 
+                    build.append(",");
+                }
+                
                 build.append("[").append(fields.get(j).name).append("]");
             }
         }
@@ -52,41 +52,41 @@ public class DirectInsert implements Formatter {
         first = true;
         for (int j = 0; j < fieldNumber; j++) {
             if (fields.get(j).produceOutput) {
-            	if (first) {
-            		first = false;
-            	} else { 
-            		build.append(","); 
-            	}
+                if (first) {
+                    first = false;
+                } else { 
+                    build.append(","); 
+                }
 
-            	build.append("?");
+                build.append("?");
             }
         }
         build.append(");");
         try {
-	        conn.setAutoCommit(false);
-	        ps = conn.prepareStatement(build.toString());         
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+            conn.setAutoCommit(false);
+            ps = conn.prepareStatement(build.toString());         
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         line = 0;
-    	 
-    	/*
-		  SQLServerBulkCopyOptions options = new SQLServerBulkCopyOptions();
-		  options.setBatchSize(500);
-		  options.setBulkCopyTimeout(30);
-		  options.setCheckConstraints(false);
-		  options.setFireTriggers(true);
-		  // options.setKeepIdentity(false);
-		  // options.setKeepNulls(false);
-		  options.setTableLock(true);
-		  // options.setUseInternalTransaction(false);
-		  
-    	
-    	SQLServerBulkCopy bulkCopy =  new SQLServerBulkCopy(conn);
-    	bulkCopy.setDestinationTableName(cfg.tableName);
-    	
-    	bulkCopy.writeToServer(arg0);
-    	
+         
+        /*
+          SQLServerBulkCopyOptions options = new SQLServerBulkCopyOptions();
+          options.setBatchSize(500);
+          options.setBulkCopyTimeout(30);
+          options.setCheckConstraints(false);
+          options.setFireTriggers(true);
+          // options.setKeepIdentity(false);
+          // options.setKeepNulls(false);
+          options.setTableLock(true);
+          // options.setUseInternalTransaction(false);
+          
+        
+        SQLServerBulkCopy bulkCopy =  new SQLServerBulkCopy(conn);
+        bulkCopy.setDestinationTableName(cfg.tableName);
+        
+        bulkCopy.writeToServer(arg0);
+        
         List<FieldInfo> fields = state.fields;
         int fieldNumber = fields.size();
         for (int j = 0; j < fieldNumber; j++) {
@@ -102,72 +102,50 @@ public class DirectInsert implements Formatter {
 
     @Override
     public void startRow() {
-    	line++;
-    	column = 1;
-    	System.out.println(tableName+" line "+line);
+        line++;
+        column = 1;
+        if (line % 50==0 || Populito.DEBUG) {
+            System.out.println(tableName+" line "+line);
+        }
     }
 
     @Override
     public void endRow() {
-    	try {
-    	       ps.addBatch();
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}
+        try {
+               ps.addBatch();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public void newField(String name, Object value, Object formattedValue) {
-    	//if (value==null) {
-    	//	ps.setNull(parameterIndex, sqlType);
-    	//}
-    	if (Populito.DEBUG) {
-        	System.out.println("    "+name+"                               :".substring(0,30-name.length())+": "+formattedValue);
-    	}
-    	try {
-	    	ps.setObject(column, value);
-	    	column++;
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}
-
-/*
-    	ps.setNu
-        if (first) {
-            first = false;
-        } else {
-            line.append(',');
+        if (Populito.DEBUG) {
+            System.out.println("    "+name+"                               :".substring(0,30-name.length())+": "+formattedValue);
         }
-        if (value == null) {
-            value = "null";
-        } else if (value instanceof Integer || value instanceof Long || value instanceof Double) {
-             value = formattedValue;
-        } else if (value instanceof Date) {
-            value = "TIMESTAMP "+quote+formattedValue+quote; 
-        } else if (value instanceof String) {
-            value = quote + value + quote;
+        try {
+            ps.setObject(column, value);
+            column++;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        line.append(value);
-*/
     }
-    
-    
 
     @Override
     public void commit() {
-    	try {
-	    	ps.executeBatch();
-			conn.commit();
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}
+        try {
+            ps.executeBatch();
+            conn.commit();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
-    
+
     public void close() {
-    	try {
-	    	ps.close();
-    	} catch (Exception e) {
-    		throw new RuntimeException(e);
-    	}    	
+        try {
+            ps.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

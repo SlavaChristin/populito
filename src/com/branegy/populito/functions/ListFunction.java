@@ -7,31 +7,30 @@ import com.branegy.populito.OutOfRowsException;
 
 
 public class ListFunction extends Function {
-	List<Function> values;
+    List<Function> values;
 
     String order = "random";
-    
+
     int pointer = 0;
-    
+
     boolean loop = true;
 
     public void setOrder(String order) {
         this.order = order;
     }
 
-	public void setValues(List<Function> values) {
-		this.values = values;
-	}
+    public void setValues(List<Function> values) {
+        this.values = values;
+    }
 
-	public List<Function> getValues() {
-		return values;
-	}
-	
-	public void setLoop(String loop) {
-		this.loop = Boolean.valueOf(loop);
-	}
-   
-    
+    public List<Function> getValues() {
+        return values;
+    }
+
+    public void setLoop(String loop) {
+        this.loop = Boolean.valueOf(loop);
+    }
+
     @Override
     public Object nextValue() {
         int index;
@@ -44,7 +43,7 @@ public class ListFunction extends Function {
                 pointer = 0;
             }
             if (pointer > values.size()) {
-            	throw new OutOfRowsException("All values were used from the list");
+                throw new OutOfRowsException("All values were used from the list");
             }
         }
         return values.get(index).nextValue();

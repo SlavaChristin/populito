@@ -33,9 +33,9 @@ public class Sequence extends Function {
         return result;
     }
 
-	@Override
-	public void reset() {
-		next = toLong(start.nextValue());
-	}
+    @Override
+    public void reset() {
+        next = toLong(start.nextValue());
+    }
 
 }

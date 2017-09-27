@@ -36,7 +36,7 @@ public class SqlInsertFormatter implements Formatter {
     @Override
     public void initialize(PopulitoConfig cfg, SharedState state) throws FileNotFoundException,
             UnsupportedEncodingException {
-        List<FieldInfo> fields = state.fields;
+        List<FieldInfo> fields = state.getFields();
         int fieldNumber = fields.size();
         for (int j = 0; j < fieldNumber; j++) {
             if (fields.get(j).produceOutput) {

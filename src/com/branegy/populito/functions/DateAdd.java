@@ -14,28 +14,28 @@ public class DateAdd extends Function implements FormattableFunction {
     Function datepart;
     Function number;
     Function date;
-	Calendar c = new GregorianCalendar();
+    Calendar c = new GregorianCalendar();
     SimpleDateFormat formatter;
 
     @Override
     public Object nextValue() {
-    	Object dateValue = date.nextValue();
-    	if (dateValue == null) {
-    		return null;
-    	}
-    	c.setTime((Date)dateValue);
-    	
-    	String datepartV = toString(datepart.nextValue());
-    	int field = -1;
-    	if (datepartV.equals("day")) {
-    		field = Calendar.DAY_OF_MONTH;
-    	} else {
-    		throw new RuntimeException("Only day is not supported as a datepart");
-    	}
-    	
-    	int amount = (int)toLong(number.nextValue());
-    	c.add(field, amount);
-    	return c.getTime();
+        Object dateValue = date.nextValue();
+        if (dateValue == null) {
+            return null;
+        }
+        c.setTime((Date)dateValue);
+        
+        String datepartV = toString(datepart.nextValue());
+        int field = -1;
+        if (datepartV.equals("day")) {
+            field = Calendar.DAY_OF_MONTH;
+        } else {
+            throw new RuntimeException("Only day is not supported as a datepart");
+        }
+        
+        int amount = (int)toLong(number.nextValue());
+        c.add(field, amount);
+        return c.getTime();
     }
 
     @Override
@@ -49,12 +49,12 @@ public class DateAdd extends Function implements FormattableFunction {
     
 
     @Override
-	public void setSeed(long seed) {
-		super.setSeed(seed);
+    public void setSeed(long seed) {
+        super.setSeed(seed);
         if (datepart!=null) datepart.setSeed(seed);
         if (number!=null) number.setSeed(seed);
         if (date!=null) date.setSeed(seed);
-	}
+    }
 
 
     @Override
@@ -67,16 +67,16 @@ public class DateAdd extends Function implements FormattableFunction {
         formatter = new SimpleDateFormat(pattern);
     }
 
-	public void setDatepart(Function datepart) {
-		this.datepart = datepart;
-	}
+    public void setDatepart(Function datepart) {
+        this.datepart = datepart;
+    }
 
-	public void setNumber(Function number) {
-		this.number = number;
-	}
+    public void setNumber(Function number) {
+        this.number = number;
+    }
 
-	public void setDate(Function date) {
-		this.date = date;
-	}
+    public void setDate(Function date) {
+        this.date = date;
+    }
 
 }

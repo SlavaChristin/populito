@@ -13,14 +13,14 @@ public class SharedState {
     
     public Object[] values;
     
-    public List<FieldInfo> fields;
+    private List<FieldInfo> fields;
     
     private Map<String, Connection> connections = new HashMap<String, Connection>();
     
     private Connection defaultConnection = null;
 
-	private SharedState parentState;
-	
+    private SharedState parentState;
+    
     protected Formatter formatter;
 
     SharedState() {
@@ -50,9 +50,9 @@ public class SharedState {
     
     public Object getFieldValue(String fieldName) {
         int size = fields.size();
-		for (int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             if (fields.get(i).name.equals(fieldName)) {
-            	return values[i];
+                return values[i];
             }
         }
         throw new RuntimeException("No such field " + fieldName);
@@ -62,8 +62,8 @@ public class SharedState {
         connections.put(connectionName, connection);
     }
 
-    public void setDefaultConnection(Connection connection) {
-    	defaultConnection = connection;
+    protected void setDefaultConnection(Connection connection) {
+        defaultConnection = connection;
     }
 
     public Connection getConnection(String connectionName) throws Exception {
@@ -71,24 +71,24 @@ public class SharedState {
     }
     
     public Connection getDefaultConnection() {
-    	if (defaultConnection==null) {
-    		throw new RuntimeException("Default connection was not set");
-    	}
-    	return defaultConnection;
+        if (defaultConnection==null) {
+            throw new RuntimeException("Default connection was not set");
+        }
+        return defaultConnection;
     }
 
-	public void setParentState(SharedState state) {
-		parentState = state;
-	}
-	
-	public SharedState getParentState() {
-		return parentState;
-	}
+    public void setParentState(SharedState state) {
+        parentState = state;
+    }
+    
+    public SharedState getParentState() {
+        return parentState;
+    }
 
-	public void reset() {
-		for (FieldInfo f : fields) {
-			f.generator.reset();
-		}
-	}
+    public void reset() {
+        for (FieldInfo f : fields) {
+            f.generator.reset();
+        }
+    }
 
 }

@@ -14,20 +14,20 @@ public class Now extends Function implements FormattableFunction {
 
     @Override
     public Object nextValue() {
-    	Date result;
-    	if (useFirstValue) {
-    		if (staticDate==null) {
-    			staticDate = new Date();
-    		}
-    		result = staticDate;
-    	} else {
-    		result = new Date();
-    	}
-    	return result;
+        Date result;
+        if (useFirstValue) {
+            if (staticDate==null) {
+                staticDate = new Date();
+            }
+            result = staticDate;
+        } else {
+            result = new Date();
+        }
+        return result;
     }
 
     public void setSingleton(String singleton) {
-    	useFirstValue = singleton.equalsIgnoreCase("true");
+        useFirstValue = singleton.equalsIgnoreCase("true");
     }
 
     public void setFormat(Function format) {

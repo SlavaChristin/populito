@@ -16,8 +16,8 @@ public class FieldInfo {
     /**
      * Possible options
      *    transient:true
-     *    key:<boolean> -- TODO What is KEY ? 
-     *    nulls:<float> - percentage of nulls
+     *    key: boolean -- TODO What is KEY ? 
+     *    nulls:float - percentage of nulls
      */
     public void setOptions(String options) {
         if (options==null) {
@@ -30,7 +30,7 @@ public class FieldInfo {
             } else if (split[0].trim().equalsIgnoreCase("key")) {
                 key = "true".equalsIgnoreCase(split[1]);
             } else if (split[0].trim().equalsIgnoreCase("nulls")) {
-            	nullPercentage =  Float.parseFloat(split[1]) / (100.0f);
+                nullPercentage =  Float.parseFloat(split[1]) / (100.0f);
             }
         }
     }

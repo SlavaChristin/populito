@@ -17,13 +17,13 @@ public class CSVFormatter implements Formatter {
     private final String outFile;
     
     public CSVFormatter(String outFile) {
-    	this.outFile = outFile;		
-	}
+        this.outFile = outFile;
+    }
 
     @Override
     public void initialize(PopulitoConfig cfg, SharedState state) throws FileNotFoundException,
             UnsupportedEncodingException {
-        List<FieldInfo> fields = state.fields;
+        List<FieldInfo> fields = state.getFields();
         int fieldNumber = fields.size();
         String header = "";
         for (int j = 0; j < fieldNumber; j++) {
@@ -58,20 +58,20 @@ public class CSVFormatter implements Formatter {
             line.append(',');
         }
         if (formattedValue == null) {
-        	formattedValue = "null";
+            formattedValue = "null";
         } else if (formattedValue instanceof String) {
-        	formattedValue = "\"" + formattedValue + "\"";
+            formattedValue = "\"" + formattedValue + "\"";
         }
         line.append(formattedValue);
     }
 
     @Override
     public void commit() {
-    	out.flush();
+        out.flush();
     }
 
-	@Override
-	public void close() {
+    @Override
+    public void close() {
         out.close();
-	}
+    }
 }
