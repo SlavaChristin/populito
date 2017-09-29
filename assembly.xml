@@ -1,0 +1,32 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+  <id>distribution</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <dependencySets>
+    <dependencySet>
+        <outputDirectory>/lib</outputDirectory>
+    </dependencySet>
+  </dependencySets>
+  <fileSets>
+    <fileSet>
+        <directory>/lists</directory>
+        <outputDirectory>/lists</outputDirectory>
+    </fileSet>
+    <fileSet>
+        <directory>/x64</directory>
+        <outputDirectory>/x64</outputDirectory>
+    </fileSet>
+    <fileSet>
+        <directory>/x86</directory>
+        <outputDirectory>/x86</outputDirectory>
+    </fileSet>
+    <fileSet>
+        <directory>/sample</directory>
+        <outputDirectory></outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>
