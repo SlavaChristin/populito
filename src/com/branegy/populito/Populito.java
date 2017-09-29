@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import com.branegy.populito.formatter.FormattableFunction;
@@ -44,6 +45,10 @@ public class Populito {
 
     public static void registerFunction(String name, Class<? extends Function> functionClass) {
     	customFunctions.put(name, functionClass);
+    }
+    
+    public void resetState() {
+    	state.reset();
     }
 
     public void loadConfiguration(PopulitoConfig config) throws Exception {
@@ -296,6 +301,10 @@ public class Populito {
 	public void setFieldValue(String fieldName, Map<String, Object> crewResourceInfo) {
 		int index = state.getFieldIndex(fieldName);
 		state.values[index] = crewResourceInfo;
+	}
+
+	public Random getRandom() {
+		return state.rnd;
 	}
 
 }
