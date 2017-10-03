@@ -1,3 +1,7 @@
+
+[![Build Status](https://travis-ci.org/branegy/populito.svg?branch=master)](https://travis-ci.org/branegy/populito)
+
+
 Requirements
 
 * JDK 1.8
