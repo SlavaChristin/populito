@@ -13,19 +13,19 @@
   </dependencySets>
   <fileSets>
     <fileSet>
-        <directory>/lists</directory>
-        <outputDirectory>/lists</outputDirectory>
+        <directory>lists</directory>
+        <outputDirectory>lists</outputDirectory>
     </fileSet>
     <fileSet>
-        <directory>/lib/x64</directory>
-        <outputDirectory>/lib/x64</outputDirectory>
+        <directory>lib/x64</directory>
+        <outputDirectory>lib/x64</outputDirectory>
     </fileSet>
     <fileSet>
-        <directory>/lib/x86</directory>
-        <outputDirectory>/lib/x86</outputDirectory>
+        <directory>lib/x86</directory>
+        <outputDirectory>lib/x86</outputDirectory>
     </fileSet>
     <fileSet>
-        <directory>/sample</directory>
+        <directory>sample</directory>
         <outputDirectory></outputDirectory>
     </fileSet>
   </fileSets>
