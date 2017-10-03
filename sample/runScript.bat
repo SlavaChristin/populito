@@ -1,7 +1,7 @@
 set JAVA_HOME=D:\Dropbox\work\tools\jdk8
 set path=%JAVA_HOME%\bin;%path%
 
-if %PROCESSOR_ARCHITECTURE% EQU "x86" (DLL_PATH=./x86) ELSE ( set DLL_PATH=./x64) 
+if %PROCESSOR_ARCHITECTURE% EQU "x86" (DLL_PATH=./lib/x86) ELSE ( set DLL_PATH=./lib/x64) 
 
 cd "%~dp0"
 

@@ -17,12 +17,12 @@
         <outputDirectory>/lists</outputDirectory>
     </fileSet>
     <fileSet>
-        <directory>/x64</directory>
-        <outputDirectory>/x64</outputDirectory>
+        <directory>/lib/x64</directory>
+        <outputDirectory>/lib/x64</outputDirectory>
     </fileSet>
     <fileSet>
-        <directory>/x86</directory>
-        <outputDirectory>/x86</outputDirectory>
+        <directory>/lib/x86</directory>
+        <outputDirectory>/lib/x86</outputDirectory>
     </fileSet>
     <fileSet>
         <directory>/sample</directory>
